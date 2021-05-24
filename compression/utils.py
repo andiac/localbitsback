@@ -6,6 +6,8 @@ import torch
 import torch.utils.data
 import torchvision
 
+import compression.mydatasets
+
 
 def seed_all(seed):
     torch.manual_seed(seed)
@@ -21,7 +23,7 @@ def setup(seed):
 
 
 def sumflat(x: torch.Tensor):
-    return x.view(x.shape[0], -1).sum(1)
+    return x.contiguous().view(x.shape[0], -1).sum(1)
 
 
 def standard_normal_logp(x):
@@ -68,6 +70,14 @@ def process_gaussian(A: torch.Tensor, scale: float, inverted: bool):
 # Dataset utilities
 
 class CIFAR10WithoutLabels(torchvision.datasets.CIFAR10):
+    def __getitem__(self, index):
+        return (super().__getitem__(index)[0],)
+
+class SVHNWithoutLabels(torchvision.datasets.SVHN):
+    def __getitem__(self, index):
+        return (super().__getitem__(index)[0],)
+
+class Imgnet32ValWithoutLabels(compression.mydatasets.Imgnet32Val):
     def __getitem__(self, index):
         return (super().__getitem__(index)[0],)
 
